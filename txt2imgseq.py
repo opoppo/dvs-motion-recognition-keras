@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import os
+import pandas as pd
 
 
 def loadTxt(file):
@@ -24,18 +25,28 @@ def loadTxt(file):
 
 if __name__ == "__main__":
 
-    for i in range(16):
-        txtpath = 'I:/celexDVS_headpose_data/txt/%d' % i + '/cortxt/'
-        imgpath = './img/%d' % i + '/'
-        for fpathe, dirs, fs in os.walk(txtpath):
-            for p, f in enumerate(fs):
+    data_file = []
 
-                if p % 3 == 0:
-                    imgoutputpath = imgpath + '/updown/' + f.split('.')[0] + '/'
-                elif (p - 1) % 3 == 0:
-                    imgoutputpath = imgpath + '/left/' + f.split('.')[0] + '/'
-                elif (p - 2) % 3 == 0:
-                    imgoutputpath = imgpath + '/right/' + f.split('.')[0] + '/'
+    for subjectID in range(1):
+        txtpath = 'I:/celexDVS_headpose_data/txt/%d' % subjectID + '/cortxt/'
+        imgpath = './data/train/'
+        sequenceID = [0, 0, 0]
+        for fpathe, dirs, fs in os.walk(txtpath):
+            for pp, f in enumerate(fs):
+                frame_count = 0
+                classID = -1
+                if pp % 3 == 0:
+                    imgoutputpath = imgpath + '/00/'  # updown
+                    classID = 0
+                    sequenceID[classID] += 1
+                elif (pp - 1) % 3 == 0:
+                    imgoutputpath = imgpath + '/01/'  # left
+                    classID = 1
+                    sequenceID[classID] += 1
+                elif (pp - 2) % 3 == 0:
+                    imgoutputpath = imgpath + '/02/'  # right
+                    classID = 2
+                    sequenceID[classID] += 1
 
                 file = txtpath + f
 
@@ -53,7 +64,7 @@ if __name__ == "__main__":
                 startTime = 0
                 endTime = 0
                 stepTime = 10000 / 0.08
-                imgCount = 1
+                frameID = 1
 
                 while startTime < t[-1]:
                     endTime = startTime + stepTime
@@ -66,22 +77,32 @@ if __name__ == "__main__":
                     data = np.column_stack((data_x, data_y, data_t))
                     data_filter = data
 
-                    for i in range(0, data_filter.shape[0]):
-                        img[int(data_filter[i][1] - 1)][int(data_filter[i][0] - 1)][1] = 255  # channel NONE
-                        img[int(data_filter[i][1] - 1)][int(data_filter[i][0] - 1)][0] += 85  # channel frequency
-                        img[int(data_filter[i][1] - 1)][int(data_filter[i][0] - 1)][2] = 255 * (
-                                data_filter[i][2] - t[start_idx]) / (t[idx] - t[start_idx])  # channel time stamp
+                    for ii in range(0, data_filter.shape[0]):
+                        img[int(data_filter[ii][1] - 1)][int(data_filter[ii][0] - 1)][
+                            1] = 255  # channel NONE
+                        img[int(data_filter[ii][1] - 1)][int(data_filter[ii][0] - 1)][
+                            0] += 85  # channel frequency
+                        img[int(data_filter[ii][1] - 1)][int(data_filter[ii][0] - 1)][2] = 255 * (
+                                data_filter[ii][2] - t[start_idx]) / (t[idx] - t[
+                            start_idx])  # channel time stamp
 
                     start_idx = idx
                     startTime = t[idx]
                     print(sum(img[img > 0]))
                     if sum(img[img > 0]) > 1000000:
-                        # img = cv2.flip(img, 0)
-                        # cv2.imshow('dvs', img)
-                        # cv2.waitKey(5)
-                        imgFullFile = imgoutputpath + ('%05d' % imgCount) + '.png'
+                        cv2.imshow('dvs', img)
+                        cv2.waitKey(5)
+                        imgFullFile = imgoutputpath + (
+                                'v_%02d_g%02d_c%02d_%03d' % (
+                            classID, int(subjectID), sequenceID[classID], frameID)) + '.jpg'
                         cv2.imwrite(imgFullFile, img)
-                        imgCount = imgCount + 1
+                        frameID = frameID + 1
 
                     img[:] = 0
                     # print('.')
+                frame_count = frameID - 1
+                data_file.append(
+                    ['train', '%02d' % classID, 'v_%02d_g%02d_c%02d' % (classID, subjectID, sequenceID[classID]),
+                     frameID])
+    df = pd.DataFrame(data_file)
+    df.to_csv('./data/data_file.csv', index=0, index_label=0)
