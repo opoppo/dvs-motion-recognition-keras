@@ -26,10 +26,13 @@ def loadTxt(file):
 if __name__ == "__main__":
 
     data_file = []
+    subject_num=16
 
-    for subjectID in range(1):
+    for subjectID in range(subject_num):
         txtpath = 'I:/celexDVS_headpose_data/txt/%d' % subjectID + '/cortxt/'
         imgpath = './data/train/'
+        if subjectID>=subject_num*0.8:
+            imgpath='./data/test/'
         sequenceID = [0, 0, 0]
         for fpathe, dirs, fs in os.walk(txtpath):
             for pp, f in enumerate(fs):
@@ -101,8 +104,13 @@ if __name__ == "__main__":
                     img[:] = 0
                     # print('.')
                 frame_count = frameID - 1
-                data_file.append(
-                    ['train', '%02d' % classID, 'v_%02d_g%02d_c%02d' % (classID, subjectID, sequenceID[classID]),
-                     frameID])
+                if subjectID >= subject_num * 0.8:
+                    data_file.append(
+                        ['test', '%02d' % classID, 'v_%02d_g%02d_c%02d' % (classID, subjectID, sequenceID[classID]),
+                         frameID])
+                else:
+                    data_file.append(
+                        ['train', '%02d' % classID, 'v_%02d_g%02d_c%02d' % (classID, subjectID, sequenceID[classID]),
+                        frameID])
     df = pd.DataFrame(data_file)
     df.to_csv('./data/data_file.csv', index=0, index_label=0)
