@@ -93,7 +93,7 @@ def main():
     # batch_size = 32 occur run ou
     # t of memory
     batch_size = 2
-    nb_epoch = 10
+    nb_epoch = 100
 
     # Chose images or features and image shape based on network.
     if model in ['conv_3d', 'c3d', 'lrcn']:

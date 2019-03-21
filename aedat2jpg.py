@@ -102,7 +102,7 @@ def getDVSeventsDavis(file, ROI=np.array([]), numEvents=1e10, startEvent=0, star
 
 # Transform aedat to jpg frames using decoding method frequency with designated step time in millisecond.
 # Return count of frames.
-def frequency(input_file, outputpath, step_time_ms=10, white_threshold=500000):
+def frequency(input_file, outputpath, step_time_ms=10, white_threshold=200000):
     T, X, Y, Pol = getDVSeventsDavis(input_file)
     T = np.array(T).reshape((-1, 1))
     X = np.array(X).reshape((-1, 1))
@@ -144,7 +144,7 @@ def frequency(input_file, outputpath, step_time_ms=10, white_threshold=500000):
 
 # Transform aedat to jpg frames using decoding method SAE with designated step time in millisecond.
 # Return count of frames.
-def sae(input_file, outputpath, step_time_ms=10, white_threshold=500000):
+def sae(input_file, outputpath, step_time_ms=10, white_threshold=200000):
     T, X, Y, Pol = getDVSeventsDavis(input_file)
     T = np.array(T).reshape((-1, 1))
     X = np.array(X).reshape((-1, 1))
@@ -192,7 +192,7 @@ def sae(input_file, outputpath, step_time_ms=10, white_threshold=500000):
 
 # Transform aedat to jpg frames using decoding method LIF with designated step time in millisecond.
 # Return count of frames.
-def lif(input_file, outputpath, step_time_ms=10, white_threshold=500000):
+def lif(input_file, outputpath, step_time_ms=10, white_threshold=200000):
     T, X, Y, Pol = getDVSeventsDavis(input_file)
     T = np.array(T).reshape((-1, 1))
     X = np.array(X).reshape((-1, 1))
