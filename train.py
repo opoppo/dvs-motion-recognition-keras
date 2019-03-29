@@ -6,6 +6,8 @@ from models import ResearchModels
 from data import DataSet
 import time
 import os.path
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 def train(data_type, seq_length, model, saved_model=None,
           class_limit=None, image_shape=None,
@@ -84,8 +86,8 @@ def train(data_type, seq_length, model, saved_model=None,
 def main():
     """These are the main training settings. Set each before running
     this file."""
-    # model can be one of lstm, lrcn, mlp, conv_3d, c3d
-    model = 'lstm'
+    # model can be one of lstm, lrcn
+    model = 'c3d'
     saved_model = None  # None or weights file
     class_limit = 5  # int, can be 1-101 or None
     seq_length = 40  # default 40
@@ -93,13 +95,13 @@ def main():
     # batch_size = 32 occur run ou
     # t of memory
     batch_size = 2
-    nb_epoch = 100
+    nb_epoch = 25
 
     # Chose images or features and image shape based on network.
     if model in ['conv_3d', 'c3d', 'lrcn']:
         data_type = 'images'
         image_shape = (80, 80, 3)
-    elif model in ['lstm', 'mlp']:
+    elif model in ['lstm']:
         data_type = 'features'
         image_shape = None
     else:
