@@ -90,7 +90,7 @@ def main():
     model = 'c3d'
     saved_model = None  # None or weights file
     class_limit = 5  # int, can be 1-101 or None
-    seq_length = 40  # default 40
+    seq_length = 40  # default 4000
     load_to_memory = False  # pre-load the sequences into memory
     # batch_size = 32 occur run ou
     # t of memory

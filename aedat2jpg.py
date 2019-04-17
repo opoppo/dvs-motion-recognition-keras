@@ -102,20 +102,27 @@ def getDVSeventsDavis(file, ROI=np.array([]), numEvents=1e10, startEvent=0, star
 
 # Transform aedat to jpg frames using decoding method frequency with designated step time in millisecond.
 # Return count of frames.
-def frequency(input_file, outputpath, step_time_ms=10, white_threshold=200000):
+def frequency(input_file, outputpath, step_time_ms=50,slice_time_ms=10, white_threshold=500000):
+    assert step_time_ms > slice_time_ms
     T, X, Y, Pol = getDVSeventsDavis(input_file)
     T = np.array(T).reshape((-1, 1))
     X = np.array(X).reshape((-1, 1))
     Y = np.array(Y).reshape((-1, 1))
     Pol = np.array(Pol).reshape((-1, 1))
     step_time = step_time_ms * 1000
+    slice_time = slice_time_ms * 1000
     start_idx = 0
     end_idx = 0
+    slice_idx = 0
     start_time = T[0]
     end_time = start_time + step_time
+    slice_end_time = start_time + slice_time
     img_count = 1
 
     while end_time <= T[-1]:
+
+        while T[slice_idx] < slice_end_time:
+            slice_idx += 1
 
         while T[end_idx] < end_time:
             end_idx = end_idx + 1
@@ -131,9 +138,10 @@ def frequency(input_file, outputpath, step_time_ms=10, white_threshold=200000):
         output_file = input_file.split('/')[-1].split('.')[0]
         # img_name = os.path.join(output_dir, "try/{0}-{1:04d}.jpg".format(output_file, img_count))
         img_name = outputpath + "_%03d.jpg" % img_count
-        start_time = end_time
-        end_time += step_time
-        start_idx = end_idx
+        start_time += slice_time
+        slice_end_time = start_time + slice_time
+        end_time = start_time + step_time
+        start_idx = slice_idx
 
         if sum(img[img > 0]) > white_threshold:
             cv2.imwrite(img_name, img)
@@ -144,22 +152,27 @@ def frequency(input_file, outputpath, step_time_ms=10, white_threshold=200000):
 
 # Transform aedat to jpg frames using decoding method SAE with designated step time in millisecond.
 # Return count of frames.
-def sae(input_file, outputpath, step_time_ms=10, white_threshold=200000):
+def sae(input_file, outputpath, step_time_ms=50,slice_time_ms=10,  white_threshold=500000):
+    assert step_time_ms > slice_time_ms
     T, X, Y, Pol = getDVSeventsDavis(input_file)
     T = np.array(T).reshape((-1, 1))
     X = np.array(X).reshape((-1, 1))
     Y = np.array(Y).reshape((-1, 1))
     Pol = np.array(Pol).reshape((-1, 1))
     step_time = step_time_ms * 1000
+    slice_time = slice_time_ms * 1000
     start_idx = 0
     end_idx = 0
+    slice_idx = 0
     start_time = T[0]
-    print(start_time)
     end_time = start_time + step_time
-    img_count = 0
+    slice_end_time = start_time + slice_time
+    img_count = 1
 
     while end_time <= T[-1]:
         # end_time = start_time + step_time
+        while T[slice_idx] < slice_end_time:
+            slice_idx += 1
 
         while T[end_idx] < end_time:
             end_idx = end_idx + 1
@@ -179,9 +192,10 @@ def sae(input_file, outputpath, step_time_ms=10, white_threshold=200000):
         # img_name = os.path.join(output_dir, "try/{0}-{1:04d}.jpg".format(output_file, img_count))
         img_name = outputpath + "_%03d.jpg" % img_count
 
-        start_time = end_time
-        end_time += step_time
-        start_idx = end_idx
+        start_time += slice_time
+        slice_end_time = start_time + slice_time
+        end_time = start_time + step_time
+        start_idx = slice_idx
 
         if sum(img[img > 0]) > white_threshold:
             cv2.imwrite(img_name, img)
@@ -192,20 +206,26 @@ def sae(input_file, outputpath, step_time_ms=10, white_threshold=200000):
 
 # Transform aedat to jpg frames using decoding method LIF with designated step time in millisecond.
 # Return count of frames.
-def lif(input_file, outputpath, step_time_ms=10, white_threshold=200000):
+def lif(input_file, outputpath, step_time_ms=50,slice_time_ms=10, white_threshold=500000):
     T, X, Y, Pol = getDVSeventsDavis(input_file)
     T = np.array(T).reshape((-1, 1))
     X = np.array(X).reshape((-1, 1))
     Y = np.array(Y).reshape((-1, 1))
     Pol = np.array(Pol).reshape((-1, 1))
     step_time = step_time_ms * 1000
+    slice_time = slice_time_ms * 1000
     start_idx = 0
     end_idx = 0
+    slice_idx = 0
     start_time = T[0]
     end_time = start_time + step_time
+    slice_end_time = start_time + slice_time
     img_count = 1
 
     while end_time <= T[-1]:
+
+        while T[slice_idx] < slice_end_time:
+            slice_idx += 1
 
         while T[end_idx] < end_time:
             end_idx = end_idx + 1
@@ -221,9 +241,10 @@ def lif(input_file, outputpath, step_time_ms=10, white_threshold=200000):
         output_file = input_file.split('/')[-1].split('.')[0]
         # img_name = os.path.join(output_dir, "try/{0}-{1:04d}.jpg".format(output_file, img_count))
         img_name = outputpath + "_%03d.jpg" % img_count
-        start_time = end_time
-        end_time += step_time
-        start_idx = end_idx
+        start_time += slice_time
+        slice_end_time = start_time + slice_time
+        end_time = start_time + step_time
+        start_idx = slice_idx
 
         if sum(img[img > 0]) > white_threshold:
             cv2.imwrite(img_name, img)
@@ -244,7 +265,7 @@ if __name__ == "__main__":
     train_test_cat = ['test', 'train']
 
     for motionID in range(motion_num):
-        aedatpath = 'I:/headpose/%d' % (motionID + 1) + motion_cat[motionID] + '/'
+        aedatpath = 'I:/DAVIS/headpose/%d' % (motionID + 1) + motion_cat[motionID] + '/'
         imgtrainpath = './data/train/'
         imgtestpath = './data/test/'
         trainsequenceID = [0, 0, 0, 0, 0]  # every subject every motion
@@ -277,7 +298,7 @@ if __name__ == "__main__":
                         motion_cat[motionID], 0, sequenceID[train_test_cat[train_test_ind]][motionID]))
 
                     if encoding_cat[encodingID] == 'frequency':
-                        frame_num = frequency(file, imgFullFile)
+                        frame_num = lif(file, imgFullFile)
 
                     data_file.append([train_test_cat[train_test_ind], motion_cat[motionID],
                                       'v_%s_g%02d_c%02d' % (
